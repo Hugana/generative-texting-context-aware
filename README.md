@@ -46,7 +46,7 @@ Companions will comment on visibility or toxicity, but not every time it sprinkl
 The system tracks V's movement across Night City districts. If you enter a district containing a key location (like a bar associated with a companion), there is a chance they will invite you out. This makes the city feel lived-in and social.
 By hooking to the `PreventionSystem` like the Heat Event,but hooked into `OnDistrictAreaEntered`. Companions will invite you to a bar with a 5% chance.
 
-| **Low Heat (Level 1)** | **Maximum Heat (Level 5)** |
+| **Dark Matter Bar** | **Lizzie's Bar** |
 | :---: | :---: |
 | ![Dark Matter](Images/BarInvitationDarkMatter.png)<br> Companion inviting you to the VIP club. | ![Lizzie's Bar](Images/BarInvitationLizzies.png)<br> Companion noticing you are in Kabuki and inviting you to Lizzie's. |
 
