@@ -50,6 +50,29 @@ By hooking to the `PreventionSystem` like the Heat Event,but hooked into `OnDist
 | :---: | :---: |
 | ![Dark Matter](Images/BarInvitationDarkMatter.png)<br> Companion inviting you to the VIP club. | ![Lizzie's Bar](Images/BarInvitationLizzies.png)<br> Companion noticing you are in Kabuki and inviting you to Lizzie's. |
 
+## Agentic Actions (Money Transfer)
+
+### The Instruction (System Prompt)
+
+We first teach the LLM that it has "tools" available via the System Prompt. We define rigid command tags that the AI must output if it intends to perform an action.
+
+```
+[CAPABILITIES: You have access to your bank account. If V asks for money and you agree to help, you can transfer funds.]
+[COMMANDS: To send money, output one of these exact tags in your message:]
+[ACTION: TRANSFER_100] (For small amounts/lunch)
+[ACTION: TRANSFER_1000] (For gear/ammo)
+[ACTION: TRANSFER_5000] (For vehicles/major help - Rare!)
+[RULE: Do not just say you sent it. You MUST include the tag.]
+```
+
+When the response arrives, the HandleMessage function scans the raw string for these specific tags before the text is displayed to the UI. If a tag is found, the associated logic is triggered, and the tag is stripped from the string so the player never sees the "code" behind the magic. And then based on the tag the function to add eddies/creddits is called from the ContextEventManager.reds
+
+
+![Money Transfer Event](Images/MoneyTransferEven.png)
+<br>Asking for some eddies for luch (eddies will be added when exiting PhoneUI - In this case its for luch, so only 100 eddies are added.) <br>
+
+
+
 
 ## Under the Hood: Prompt Engineering
 
