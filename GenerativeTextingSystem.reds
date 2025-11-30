@@ -438,21 +438,21 @@ public class GenerativeTextingSystem extends ScriptableService {
     public func GetIsTypingString() -> String {
         switch GetTextingSystem().language {
             case PlayerLanguage.English:
-                return "is typing...";
+                return " is typing";
             case PlayerLanguage.Spanish:
-                return "está escribiendo...";
+                return " está escribiendo";
             case PlayerLanguage.French:
-                return "écrit...";
+                return " écrit";
             case PlayerLanguage.German:
-                return "schreibt...";
+                return " schreibt";
             case PlayerLanguage.Italian:
-                return "sta scrivendo...";
+                return " sta scrivendo";
             case PlayerLanguage.Portuguese:
-                return "está digitando...";
+                return " está digitando";
             case PlayerLanguage.Russian:
-                return "печатает...";
+                return " печатает";
             default:
-                return "is typing...";
+                return " is typing";
         }
     }
 
