@@ -478,47 +478,61 @@ public class GenerativeTextingSystem extends ScriptableService {
         }
     }
 
-// "Send a message." 
-public func GetSendMessageString() -> String {
-    switch GetTextingSystem().language {
-        case PlayerLanguage.English:    return "Send a message.";
-        case PlayerLanguage.Spanish:    return "Enviar mensaje.";
-        case PlayerLanguage.French:     return "Envoyer un message.";
-        case PlayerLanguage.German:     return "Nachricht senden.";
-        case PlayerLanguage.Italian:    return "Invia messaggio.";
-        case PlayerLanguage.Portuguese: return "Enviar mensagem.";
-        case PlayerLanguage.Russian:    return "Отправить сообщение.";
-        default: return "Send a message.";
+    // "Messages" (Header Title)
+    public func GetMessagesHeaderString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:    return "Messages";
+            case PlayerLanguage.Spanish:    return "Mensajes";
+            case PlayerLanguage.French:     return "Messages";
+            case PlayerLanguage.German:     return "Nachrichten";
+            case PlayerLanguage.Italian:    return "Messaggi";
+            case PlayerLanguage.Portuguese: return "Mensagens";
+            case PlayerLanguage.Russian:    return "Сообщения";
+            default: return "Messages";
+        }
     }
-}
 
-// "Close" 
-public func GetCloseString() -> String {
-    switch GetTextingSystem().language {
-        case PlayerLanguage.English:    return "Close";
-        case PlayerLanguage.Spanish:    return "Cerrar";
-        case PlayerLanguage.French:     return "Fermer";
-        case PlayerLanguage.German:     return "Schließen";
-        case PlayerLanguage.Italian:    return "Chiudi";
-        case PlayerLanguage.Portuguese: return "Fechar";
-        case PlayerLanguage.Russian:    return "Закрыть";
-        default: return "Close";
+    // "Send a message." 
+    public func GetSendMessageString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:    return "Send a message.";
+            case PlayerLanguage.Spanish:    return "Enviar mensaje.";
+            case PlayerLanguage.French:     return "Envoyer un message.";
+            case PlayerLanguage.German:     return "Nachricht senden.";
+            case PlayerLanguage.Italian:    return "Invia messaggio.";
+            case PlayerLanguage.Portuguese: return "Enviar mensagem.";
+            case PlayerLanguage.Russian:    return "Отправить сообщение.";
+            default: return "Send a message.";
+        }
     }
-}
 
-// "Reset" 
-public func GetResetString() -> String {
-    switch GetTextingSystem().language {
-        case PlayerLanguage.English:    return "Reset";
-        case PlayerLanguage.Spanish:    return "Reiniciar";
-        case PlayerLanguage.French:     return "Réinitialiser";
-        case PlayerLanguage.German:     return "Zurücksetzen";
-        case PlayerLanguage.Italian:    return "Reimposta";
-        case PlayerLanguage.Portuguese: return "Reiniciar";
-        case PlayerLanguage.Russian:    return "Сброс";
-        default: return "Reset";
+    // "Close" 
+    public func GetCloseString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:    return "Close";
+            case PlayerLanguage.Spanish:    return "Cerrar";
+            case PlayerLanguage.French:     return "Fermer";
+            case PlayerLanguage.German:     return "Schließen";
+            case PlayerLanguage.Italian:    return "Chiudi";
+            case PlayerLanguage.Portuguese: return "Fechar";
+            case PlayerLanguage.Russian:    return "Закрыть";
+            default: return "Close";
+        }
     }
-}
+
+    // "Reset" 
+    public func GetResetString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:    return "Reset";
+            case PlayerLanguage.Spanish:    return "Reiniciar";
+            case PlayerLanguage.French:     return "Réinitialiser";
+            case PlayerLanguage.German:     return "Zurücksetzen";
+            case PlayerLanguage.Italian:    return "Reimposta";
+            case PlayerLanguage.Portuguese: return "Reiniciar";
+            case PlayerLanguage.Russian:    return "Сброс";
+            default: return "Reset";
+        }
+    }
 
 // "Undo" 
 public func GetUndoString() -> String {
@@ -826,7 +840,7 @@ public func GetUndoString() -> String {
 
         let messagesPathText = new inkText();
         messagesPathText.SetName(n"txtValue");
-        messagesPathText.SetText("Messages");
+        messagesPathText.SetText(this.GetMessagesHeaderString());
         messagesPathText.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
         messagesPathText.SetFontStyle(n"Medium");
         messagesPathText.SetFontSize(50);
