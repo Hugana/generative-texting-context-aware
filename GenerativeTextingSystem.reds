@@ -326,14 +326,14 @@ public class GenerativeTextingSystem extends ScriptableService {
         if GetHttpRequestSystem().GetIsGenerating() {
             this.typedMessageWrapper.RemoveChildByName(input.GetName());
             this.typedMessageText.SetVisible(true);
-            this.typedMessageText.SetText("Send a message.");
+            this.typedMessageText.SetText(this.GetSendMessageString());
             this.typedMessageText.SetOpacity(0.2);
             this.chatInputHint.SetTexturePart(n"mouse_left");
             this.chatInputHint.SetOpacity(0.2);
         } else if !this.isTyping {
             this.typedMessageWrapper.RemoveChildByName(input.GetName());
             this.typedMessageText.SetVisible(true);
-            this.typedMessageText.SetText("Send a message.");
+            this.typedMessageText.SetText(this.GetSendMessageString());
             this.typedMessageText.SetOpacity(1);
             this.chatInputHint.SetTexturePart(n"mouse_left");
             this.chatInputHint.SetOpacity(1);
@@ -455,6 +455,85 @@ public class GenerativeTextingSystem extends ScriptableService {
                 return " is typing";
         }
     }
+
+    // Update the "Send a Message" for each language
+    public func GetIsTypingString() -> String {
+        switch GetTextingSystem().language {
+            case PlayerLanguage.English:
+                return " is typing";
+            case PlayerLanguage.Spanish:
+                return " está escribiendo";
+            case PlayerLanguage.French:
+                return " écrit";
+            case PlayerLanguage.German:
+                return " schreibt";
+            case PlayerLanguage.Italian:
+                return " sta scrivendo";
+            case PlayerLanguage.Portuguese:
+                return " está digitando";
+            case PlayerLanguage.Russian:
+                return " печатает";
+            default:
+                return " is typing";
+        }
+    }
+
+// "Send a message." 
+public func GetSendMessageString() -> String {
+    switch GetTextingSystem().language {
+        case PlayerLanguage.English:    return "Send a message.";
+        case PlayerLanguage.Spanish:    return "Enviar mensaje.";
+        case PlayerLanguage.French:     return "Envoyer un message.";
+        case PlayerLanguage.German:     return "Nachricht senden.";
+        case PlayerLanguage.Italian:    return "Invia messaggio.";
+        case PlayerLanguage.Portuguese: return "Enviar mensagem.";
+        case PlayerLanguage.Russian:    return "Отправить сообщение.";
+        default: return "Send a message.";
+    }
+}
+
+// "Close" 
+public func GetCloseString() -> String {
+    switch GetTextingSystem().language {
+        case PlayerLanguage.English:    return "Close";
+        case PlayerLanguage.Spanish:    return "Cerrar";
+        case PlayerLanguage.French:     return "Fermer";
+        case PlayerLanguage.German:     return "Schließen";
+        case PlayerLanguage.Italian:    return "Chiudi";
+        case PlayerLanguage.Portuguese: return "Fechar";
+        case PlayerLanguage.Russian:    return "Закрыть";
+        default: return "Close";
+    }
+}
+
+// "Reset" 
+public func GetResetString() -> String {
+    switch GetTextingSystem().language {
+        case PlayerLanguage.English:    return "Reset";
+        case PlayerLanguage.Spanish:    return "Reiniciar";
+        case PlayerLanguage.French:     return "Réinitialiser";
+        case PlayerLanguage.German:     return "Zurücksetzen";
+        case PlayerLanguage.Italian:    return "Reimposta";
+        case PlayerLanguage.Portuguese: return "Reiniciar";
+        case PlayerLanguage.Russian:    return "Сброс";
+        default: return "Reset";
+    }
+}
+
+// "Undo" 
+public func GetUndoString() -> String {
+    switch GetTextingSystem().language {
+        case PlayerLanguage.English:    return "Undo";
+        case PlayerLanguage.Spanish:    return "Deshacer";
+        case PlayerLanguage.French:     return "Annuler";
+        case PlayerLanguage.German:     return "Rückgängig";
+        case PlayerLanguage.Italian:    return "Annulla";
+        case PlayerLanguage.Portuguese: return "Desfazer";
+        case PlayerLanguage.Russian:    return "Отменить";
+        default: return "Undo";
+    }
+}
+
 
     private func PlaySound(sound: CName) {
         GameObject.PlaySoundEvent(this.player, sound);
@@ -1221,7 +1300,7 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         let activeItemText = new inkText();
         activeItemText.SetName(n"activeItemText");
-        activeItemText.SetText("Send a message.");
+        activeItemText.SetText(this.GetSendMessageString());
         activeItemText.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
         activeItemText.SetFontStyle(n"Medium");
         activeItemText.SetFontSize(42);
@@ -1353,7 +1432,7 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         let hintUndoText = new inkText();
         hintUndoText.SetName(n"action");
-        hintUndoText.SetText("Undo");
+        hintUndoText.SetText(this.GetUndoString());
         hintUndoText.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
         hintUndoText.SetFontStyle(n"Semi-Bold");
         hintUndoText.SetFontSize(38);
@@ -1396,7 +1475,7 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         let hintResetText = new inkText();
         hintResetText.SetName(n"action");
-        hintResetText.SetText("Reset");
+        hintResetText.SetText(this.GetResetString());
         hintResetText.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
         hintResetText.SetFontStyle(n"Semi-Bold");
         hintResetText.SetFontSize(38);
@@ -1439,7 +1518,7 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         let hintCloseText = new inkText();
         hintCloseText.SetName(n"action");
-        hintCloseText.SetText("Close");
+        hintCloseText.SetText(this.GetCloseString());
         hintCloseText.SetFontFamily("base\\gameplay\\gui\\fonts\\raj\\raj.inkfontfamily");
         hintCloseText.SetFontStyle(n"Semi-Bold");
         hintCloseText.SetFontSize(38);
@@ -1479,3 +1558,4 @@ public class GenerativeTextingSystem extends ScriptableService {
         modMessengerSlotRoot.PlayAnimation(animDefRoot);
     }
 }
+
