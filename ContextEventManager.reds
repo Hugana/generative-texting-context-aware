@@ -55,6 +55,17 @@ public class ContextEventManager extends ScriptableSystem {
         //FTLog("Context Event Manager Attached. Monitoring Weather.");
     }
 
+    // Helper to give money to the player
+    public func TransferMoneyToPlayer(amount: Int32) -> Void {
+        
+        let player = GetPlayer(this.GetGameInstance());
+        let transactionSystem = GameInstance.GetTransactionSystem(this.GetGameInstance());
+        let moneyID = ItemID.FromTDBID(t"Items.money");        
+        transactionSystem.GiveItem(player, moneyID, amount);
+
+        FTLog("AGENTIC ACTION: Transferred " + amount + " eddies to player.");
+    }
+
     //Check if player is Busy in dialogue or cut-scene
     public func IsPlayerBusy() -> Bool {
        

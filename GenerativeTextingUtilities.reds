@@ -17,6 +17,11 @@ public func GetOpenRouterModel() -> String {
     return "x-ai/grok-4.1-fast:free";
 }
 
+// Replace this with your desired provider for OpenRouter
+public func GetOpenRouterProvider() -> String {
+    return "Auto";
+}
+
 // Get the character's full display name
 public func GetCharacterLocalizedName(character: CharacterSetting) -> String{
     switch character {

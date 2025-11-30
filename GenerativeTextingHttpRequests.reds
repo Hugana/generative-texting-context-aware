@@ -245,27 +245,52 @@ public class HttpRequestSystem extends ScriptableSystem {
   }
 
   private func HandleMessage(text: String) {
-    if StrBeginsWith(text, " ") {
-      text = StrRight(text, (StrLen(text) - 1));
+    
+    let processedText = text;
+    
+    // Context Event Manager to add Eddies
+    let eventManagerMessage = GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"ContextEventManager") as ContextEventManager;
+
+    // Parsing the message to and replacing action 
+    if StrContains(processedText, "[ACTION: TRANSFER_100]") {
+        eventManagerMessage.TransferMoneyToPlayer(100);
+        processedText = StrReplace(processedText, "[ACTION: TRANSFER_100]", "");
+    }
+    
+    if StrContains(processedText, "[ACTION: TRANSFER_1000]") {
+        eventManagerMessage.TransferMoneyToPlayer(1000);
+        processedText = StrReplace(processedText, "[ACTION: TRANSFER_1000]", "");
+    }
+
+    if StrContains(processedText, "[ACTION: TRANSFER_5000]") {
+        eventManagerMessage.TransferMoneyToPlayer(5000);
+        processedText = StrReplace(processedText, "[ACTION: TRANSFER_5000]", "");
+    }
+    
+    // More processing
+    processedText = StrReplace(processedText, "  ", " ");
+
+    if StrBeginsWith(processedText, " ") {
+      processedText = StrRight(processedText, (StrLen(processedText) - 1));
     }
     
     if GetTextingSystem().GetChatOpen() {
       this.ToggleTypingIndicator(false);
-      // If text is greater than 1000 in length, split it into two messages
-      if StrLen(text) > 1000 {
-        let firstHalf = StrLeft(text, 1000);
-        let secondHalf = StrRight(text, (StrLen(text) - 1000));
+      
+      if StrLen(processedText) > 1000 {
+        let firstHalf = StrLeft(processedText, 1000);
+        let secondHalf = StrRight(processedText, (StrLen(processedText) - 1000));
         this.BuildTextMessage(firstHalf);
         this.BuildTextMessage(secondHalf);
       } else {
-        this.BuildTextMessage(text);
+        this.BuildTextMessage(processedText);
       }
       GetTextingSystem().UpdateInputUi();
     } else {
-      this.PushNotification(text);
+      this.PushNotification(processedText); 
     }
 
-    this.AppendToHistory(text, false);
+    this.AppendToHistory(processedText, false);
     this.ToggleIsGenerating(false);
   }
 
@@ -440,6 +465,16 @@ public class HttpRequestSystem extends ScriptableSystem {
     let charName = GetCharacterLocalizedName(GetTextingSystem().character);
     this.systemPrompt += "\n" + dataSystem.GetPerCharacterQuestContext(charName);
 
+    let actionInstructions = 
+    "\n[CAPABILITIES: You have access to your bank account. If V asks for money and you agree to help, you can transfer funds.]" +
+    "\n[COMMANDS: To send money, output one of these exact tags in your message:]" +
+    "\n- [ACTION: TRANSFER_100] (For small amounts/lunch)" +
+    "\n- [ACTION: TRANSFER_1000] (For gear/ammo)" +
+    "\n- [ACTION: TRANSFER_5000] (For vehicles/major help - Rare!)" +
+    "\n[RULE: Do not just say you sent it. You MUST include the tag.]";
+
+    this.systemPrompt += actionInstructions;
+
     return this.systemPrompt;    
   }
 
@@ -499,7 +534,21 @@ public class HttpRequestSystem extends ScriptableSystem {
     let requestDTO = new OpenAIRequestDTO();
   
     requestDTO.model = GetOpenRouterModel(); 
-    
+    let preferredProvider = GetOpenRouterProvider(); 
+
+    if NotEquals(preferredProvider, "Auto") && StrLen(preferredProvider) > 0 {
+        
+        let providerDTO = new OpenRouterProviderDTO();
+        let orderArray: array<String>;
+        ArrayPush(orderArray, preferredProvider);
+        
+        providerDTO.order = orderArray;
+        providerDTO.allow_fallbacks = true; 
+        requestDTO.provider = providerDTO;
+      
+        ConsoleLog("OpenRouter: Routing preference set to " + preferredProvider);
+    }
+
     let messagesArray: array<ref<OpenAIMessageDTO>>;
 
     let systemMessage = new OpenAIMessageDTO();
@@ -576,9 +625,17 @@ public class TextGenerationParamsDTO {
     public let frmttriminc: Bool;
 }
 
+// Open Router Provider
+public class OpenRouterProviderDTO {
+    public let order: array<String>;
+    public let allow_fallbacks: Bool;
+}
+
 public class OpenAIRequestDTO {
     public let model: String;
     public let messages: array<ref<OpenAIMessageDTO>>;
+
+    public let provider: ref<OpenRouterProviderDTO>;
 }
 
 public class OpenAIMessageDTO {
