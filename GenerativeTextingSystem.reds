@@ -149,6 +149,10 @@ public class GenerativeTextingSystem extends ScriptableService {
         this.callbackSystem = GameInstance.GetCallbackSystem();
         this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
         this.callbackSystem.UnregisterCallback(n"Input/Axis", this, n"OnAxisInput");
+
+
+        
+
         ModSettings.RegisterListenerToClass(this);
         this.GetWidgetReferences(54);
         this.InitializeDefaultPhoneController();
@@ -217,6 +221,27 @@ public class GenerativeTextingSystem extends ScriptableService {
     // Handle key input events
     private cb func OnKeyInput(event: ref<KeyInputEvent>) {
         if NotEquals(s"\(event.GetAction())", "IACT_Press") {
+            return;
+        }
+
+        // Quick Access Hotkey (U)
+        if Equals(s"\(event.GetKey())", "IK_U") {
+            
+            // 1. Safety / Disabled Check
+            if this.disabled {
+                ConsoleLog("Generative Texting System is disabled.");
+                return;
+            }
+
+            // 2. Toggle Logic
+            if this.chatOpen {
+                this.npcSelected = false;
+                this.chatOpen = false;
+                this.ShowPhoneUI(); 
+            } else {
+                this.ToggleNpcSelected(true); 
+                this.HidePhoneUi(); 
+            }
             return;
         }
 
@@ -328,17 +353,29 @@ public class GenerativeTextingSystem extends ScriptableService {
         if !this.initialized {
             this.InitializeSystem();
         } 
-
         this.npcSelected = value;
+        this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
+
         if this.npcSelected {
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
-                .AddTarget(InputTarget.Key(EInputKey.IK_T));
+                .AddTarget(InputTarget.Key(EInputKey.IK_T))     
+                .AddTarget(InputTarget.Key(EInputKey.IK_U)) 
+                .AddTarget(InputTarget.Key(EInputKey.IK_C))
+                .AddTarget(InputTarget.Key(EInputKey.IK_R))
+                .AddTarget(InputTarget.Key(EInputKey.IK_Z))
+                .AddTarget(InputTarget.Key(EInputKey.IK_Enter))
+                .AddTarget(InputTarget.Key(EInputKey.IK_Escape))
+                .AddTarget(InputTarget.Key(EInputKey.IK_LeftMouse))
+                .AddTarget(InputTarget.Key(EInputKey.IK_U));    
+                
             if NotEquals(this.lastActiveCharacter, this.character) {
                 this.ResetConversation(false);
                 this.lastActiveCharacter = this.character;
             }
         } else {
-            this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
+            this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
+                .AddTarget(InputTarget.Key(EInputKey.IK_U));
+            
             this.callbackSystem.UnregisterCallback(n"Input/Axis", this, n"OnAxisInput");
         }
     }
@@ -1607,4 +1644,3 @@ public func GetUndoString() -> String {
         modMessengerSlotRoot.PlayAnimation(animDefRoot);
     }
 }
-
