@@ -72,7 +72,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     let jsonRequest = ToJson(requestDTO);
     
     let callback = HttpCallback.Create(this, n"OnOpenAIResponse");
-
+   
     let headers: array<HttpHeader> = [
         HttpHeader.Create("Content-Type", "application/json"),
         HttpHeader.Create("Authorization", "Bearer " + apiKey),
@@ -82,7 +82,8 @@ public class HttpRequestSystem extends ScriptableSystem {
 
     AsyncHttpClient.Post(callback, "https://openrouter.ai/api/v1/chat/completions", jsonRequest.ToString(), headers);
     
-    ConsoleLog("== OpenRouter POST Request ==");
+    ConsoleLog("== OpenRouterPOST Request ==");
+    ConsoleLog(s"\(jsonRequest.ToString("\t"))");
     this.ToggleIsGenerating(true);
   }
 
@@ -252,17 +253,17 @@ public class HttpRequestSystem extends ScriptableSystem {
     let eventManagerMessage = GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"ContextEventManager") as ContextEventManager;
 
     // Parsing the message to and replacing action 
-    if StrContains(processedText, "[ACTION: TRANSFER_100]") {
+    if StrContains(processedText, "[ACTION : TRANSFER_100]") {
         eventManagerMessage.TransferMoneyToPlayer(100);
         processedText = StrReplace(processedText, "[ACTION: TRANSFER_100]", "");
     }
     
-    if StrContains(processedText, "[ACTION: TRANSFER_1000]") {
+    if StrContains(processedText, "[ACTION : TRANSFER_1000]") {
         eventManagerMessage.TransferMoneyToPlayer(1000);
         processedText = StrReplace(processedText, "[ACTION: TRANSFER_1000]", "");
     }
 
-    if StrContains(processedText, "[ACTION: TRANSFER_5000]") {
+    if StrContains(processedText, "[ACTION : TRANSFER_5000]") {
         eventManagerMessage.TransferMoneyToPlayer(5000);
         processedText = StrReplace(processedText, "[ACTION: TRANSFER_5000]", "");
     }
@@ -438,12 +439,12 @@ public class HttpRequestSystem extends ScriptableSystem {
       i += 1;
     }
 
-    // Added for game context
+    /*// Added for game context
     if StrLen(this.pendingContext) > 0 {
         promptText += "\n[SYSTEM EVENT: " + this.pendingContext + "]\n";
 
         this.pendingContext = ""; 
-    }
+    }*/
 
     // Add the player’s current message to the prompt
     promptText += "V: " + playerInput + " <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
@@ -453,31 +454,71 @@ public class HttpRequestSystem extends ScriptableSystem {
 
   // Build the system prompt based on the selected character and relationship
   private func GetSystemPrompt() -> String {
+
+    this.systemPrompt = "";
+
     let character = GetTextingSystem().character;
     let romance = GetTextingSystem().romance;
-
     let guidelines = GetGuidelines();
-
-    this.systemPrompt = "<|start_header_id|>system<|end_header_id|>\n\n" + GetCharacterBio(character) + "\n" + GetCharacterRelationship(character, romance) + "\n " + guidelines;
 
     // If the current selected character as a tracked mission: Append the context of the mission to the prompt
     let dataSystem = GameInstance.GetScriptableSystemsContainer(this.GetGameInstance()).Get(n"ContextDataSystem") as ContextDataSystem;
-    let charName = GetCharacterLocalizedName(GetTextingSystem().character);
-    this.systemPrompt += "\n" + dataSystem.GetPerCharacterQuestContext(charName);
 
-    let actionInstructions = 
-    "\n[CAPABILITIES: You have access to your bank account. If V asks for money and you agree to help, you can transfer funds.]" +
-    "\n[COMMANDS: To send money, output one of these exact tags in your message:]" +
-    "\n- [ACTION: TRANSFER_100] (For small amounts/lunch)" +
-    "\n- [ACTION: TRANSFER_1000] (For gear/ammo)" +
-    "\n- [ACTION: TRANSFER_5000] (For vehicles/major help - Rare!)" +
-    "\n[RULE: Do not just say you sent it. You MUST include the tag.]";
+    this.systemPrompt += "<|start_header_id|> system: <|end_header_id|>";
+    this.systemPrompt += "<system>";
+    this.systemPrompt += guidelines;
+    this.systemPrompt += "</system>";
+    this.systemPrompt += GetConversationType();
+    this.systemPrompt += "<character>";
+    this.systemPrompt += GetCharacterBio(character);
+    this.systemPrompt += "</character>";
+    this.systemPrompt += "<mission>";
+    this.systemPrompt += dataSystem.GetPerCharacterQuestContext(GetCharacterLocalizedName(character));
+    this.systemPrompt += "</mission>";
+    this.systemPrompt += "<relationship>";
+    this.systemPrompt += GetCharacterRelationship(character, romance);
+    this.systemPrompt += "</relationship>";
+    this.systemPrompt += "<interactions>";
+    this.systemPrompt += GetWorldInteractions();
+    this.systemPrompt += "</interactions>";
+    this.systemPrompt += "<mechanics>";
+    this.systemPrompt += GetWorldMechanics();
+    this.systemPrompt += "</mechanics>";
+    this.systemPrompt += "<event>";
+    this.systemPrompt += this.pendingContext;
+    this.systemPrompt += "</event>";
+    this.systemPrompt += "<language>";
+    this.systemPrompt += GetPlayerLanguage();
+    this.systemPrompt += "</language>";
+    this.systemPrompt += "<|eot_id>";
 
-    this.systemPrompt += actionInstructions;
-
-    this.systemPrompt += "DONT FORGET YOU TALK IN THIS LANGUAGE: " + GetPlayerLanguage();
+    this.pendingContext = "";
 
     return this.systemPrompt;    
+  }
+
+  // Helper to get ONLY conversation history + input (No System Prompt)
+  public func GenerateConversationString(playerInput: String) -> String {
+    let promptText = ""; 
+
+    // 1. Concatenate History
+    let i = 0;
+    while i < ArraySize(this.vMessages) {
+      promptText += "V: " + this.vMessages[i] + "\n";
+      promptText += GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.npcResponses[i] + "\n";
+      i += 1;
+    }
+
+    /*// 2. Inject Pending Context (Police/Weather events go here)
+    if StrLen(this.pendingContext) > 0 {
+        promptText += "\n[SYSTEM EVENT: " + this.pendingContext + "]\n";
+        this.pendingContext = ""; 
+    }*/
+
+    // 3. Add Player Input
+    promptText += "V: " + playerInput + " <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
+
+    return promptText;
   }
 
   // Build the post request
@@ -553,14 +594,19 @@ public class HttpRequestSystem extends ScriptableSystem {
 
     let messagesArray: array<ref<OpenAIMessageDTO>>;
 
+    // 1. System Message (Contains the Instructions)
     let systemMessage = new OpenAIMessageDTO();
     systemMessage.role = "system";
     systemMessage.content = this.GetSystemPrompt(); 
     ArrayPush(messagesArray, systemMessage);
 
+    // 2. User Message (Contains ONLY History + Input)
     let userMessage = new OpenAIMessageDTO();
     userMessage.role = "user";
-    userMessage.content = this.GeneratePrompt(playerMessage);
+    
+    // FIX: Use the new function so we don't duplicate the prompt
+    userMessage.content = this.GenerateConversationString(playerMessage); 
+    
     ArrayPush(messagesArray, userMessage);
 
     requestDTO.messages = messagesArray;
@@ -573,14 +619,19 @@ public class HttpRequestSystem extends ScriptableSystem {
     
     let messagesArray: array<ref<OpenAIMessageDTO>>;
 
+    // 1. System Message (Contains the Instructions)
     let systemMessage = new OpenAIMessageDTO();
     systemMessage.role = "system";
-    systemMessage.content = "";
+    systemMessage.content = this.GetSystemPrompt();
     ArrayPush(messagesArray, systemMessage);
 
+    // 2. User Message (Contains ONLY History + Input)
     let userMessage = new OpenAIMessageDTO();
     userMessage.role = "user";
+
+    // FIX: Use the new function so we don't duplicate the prompt
     userMessage.content = this.GeneratePrompt(playerMessage);
+    
     ArrayPush(messagesArray, userMessage);
 
     requestDTO.messages = messagesArray;
