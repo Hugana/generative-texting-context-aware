@@ -148,12 +148,12 @@ public func GetWorldMechanics() -> String {
     return "<money_transfer>Description:You can transfer Eurodollars to V's account, but strictly according to three specific tiers based on the context of the request." +
             "Triggers:Activate this ONLY when V asks for financial help. You must analyze the severity of the request and choose one of the three fixed amounts below." +
             "Tiers and Amounts:" + 
-            "SMALL AMOUNT [ACTION : TRANSFER_100]:" +
+            "SMALL AMOUNT [ACTION:TRANSFER_100]:" +
             "Use this for \"luck\", buying a drink, small requests, or vague \"spare change\" asks. " +
             "Command: [ACTION : TRANSFER_1000]" +
             "MEDIUM AMOUNT (1000 eddies):" +
             "Use this specifically for \"ammo\", \"supplies\", \"gear\", or standard mission preparation expenses." +
-            "Command: [ACTION : TRANSFER_5000]" +
+            "Command: [ACTION:TRANSFER_5000]" +
             "LARGE AMOUNT (5000 eddies):" +
             "Use this ONLY for \"rare occasions\", major emergencies, paying off big debts, or high-stakes situations. This should happen very rarely." +
             "Command: (action give 5000)" +
