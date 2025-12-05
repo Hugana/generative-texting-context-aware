@@ -81,6 +81,7 @@ public class GenerativeTextingSystem extends ScriptableService {
     @runtimeProperty("ModSettings.displayValues.Italian", "Italian")
     @runtimeProperty("ModSettings.displayValues.Portuguese", "Portuguese")
     @runtimeProperty("ModSettings.displayValues.Russian", "Russian")
+    @runtimeProperty("ModSettings.displayValues.Ukraine", "Ukraine")
     public let language: PlayerLanguage = PlayerLanguage.English;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
@@ -258,8 +259,8 @@ public class GenerativeTextingSystem extends ScriptableService {
                 return; 
             }
 
+            this.ToggleNpcSelected(true); 
             this.HidePhoneUi();
-            this.ToggleNpcSelected(true);
             
             return;
         }
@@ -379,12 +380,12 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         this.npcSelected = value;
         if this.npcSelected {
+            // Register Keys...
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
                 .AddTarget(InputTarget.Key(EInputKey.IK_T));
+
             if NotEquals(this.lastActiveCharacter, this.character) {
-                this.ResetConversation(false);
                 this.lastActiveCharacter = this.character;
-                
             }
         } else {
             this.callbackSystem.UnregisterCallback(n"Input/Key", this, n"OnKeyInput");
@@ -556,6 +557,8 @@ public class GenerativeTextingSystem extends ScriptableService {
                 return " está digitando";
             case PlayerLanguage.Russian:
                 return " печатает";
+            case PlayerLanguage.Ukraine:
+                return " Друкує";
             default:
                 return " is typing";
         }
@@ -571,6 +574,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             case PlayerLanguage.Italian:    return "Chat Veloce";
             case PlayerLanguage.Portuguese: return "Chat Rápido";
             case PlayerLanguage.Russian:    return "Быстрый чат";
+            case PlayerLanguage.Ukraine:    return "Швидкий чат";
             default: return "Quick Chat";
         }
     }
@@ -592,6 +596,8 @@ public class GenerativeTextingSystem extends ScriptableService {
                 return " está digitando";
             case PlayerLanguage.Russian:
                 return " печатает";
+            case PlayerLanguage.Ukraine:
+                return " Друкує";
             default:
                 return " is typing";
         }
@@ -607,6 +613,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             case PlayerLanguage.Italian:    return "Messaggi";
             case PlayerLanguage.Portuguese: return "Mensagens";
             case PlayerLanguage.Russian:    return "Сообщения";
+            case PlayerLanguage.Ukraine:    return "Повідомлення";
             default: return "Messages";
         }
     }
@@ -621,6 +628,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             case PlayerLanguage.Italian:    return "Invia messaggio.";
             case PlayerLanguage.Portuguese: return "Enviar mensagem.";
             case PlayerLanguage.Russian:    return "Отправить сообщение.";
+            case PlayerLanguage.Ukraine:    return "Відправити повідомлення.";
             default: return "Send a message.";
         }
     }
@@ -635,6 +643,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             case PlayerLanguage.Italian:    return "Chiudi";
             case PlayerLanguage.Portuguese: return "Fechar";
             case PlayerLanguage.Russian:    return "Закрыть";
+            case PlayerLanguage.Ukraine:    return "Закрити";
             default: return "Close";
         }
     }
@@ -649,6 +658,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             case PlayerLanguage.Italian:    return "Reimposta";
             case PlayerLanguage.Portuguese: return "Reiniciar";
             case PlayerLanguage.Russian:    return "Сброс";
+            case PlayerLanguage.Ukraine:    return "Скидання";
             default: return "Reset";
         }
     }
@@ -663,6 +673,7 @@ public func GetUndoString() -> String {
         case PlayerLanguage.Italian:    return "Annulla";
         case PlayerLanguage.Portuguese: return "Desfazer";
         case PlayerLanguage.Russian:    return "Отменить";
+        case PlayerLanguage.Ukraine:    return "Скасувати";
         default: return "Undo";
     }
 }
@@ -720,6 +731,11 @@ public func GetUndoString() -> String {
     private func BuildMessage(text: String, fromPlayer: Bool, useAnim: Bool) {
         if !IsDefined(this.messageParent) {
             return;
+        }
+
+        //Remove Whitespaces at the start of the message
+        while StrBeginsWith(text, "\n") || StrBeginsWith(text, " ") {
+            text = StrRight(text, StrLen(text) - 1);
         }
 
         let message = new inkFlex();
