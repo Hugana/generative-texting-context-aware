@@ -22,6 +22,7 @@ public func GetOpenRouterProvider() -> String {
     return "Auto";
 }
 
+
 // Get the character's full display name
 public func GetCharacterLocalizedName(character: CharacterSetting) -> String{
     switch character {
@@ -221,24 +222,28 @@ public func GetGuidelines() -> String {
 }
 
 public func GetPlayerLanguage() -> String {
-    let string = "You only speak ";
     switch GetTextingSystem().language {
         case PlayerLanguage.English:
-            return string + "English";
+            return "Give a short reply in the form of an SMS message, from the character’s perspective, never send your character name like \"name: msg\". Always respond exclusively in English";
         case PlayerLanguage.Spanish:
-            return string + "Spanish";
+            return "Responde con un mensaje corto al estilo de un SMS, desde la perspectiva del personaje, nunca incluyas el nombre del personaje como \"nombre: mensaje\". Responde exclusivamente en español.";
         case PlayerLanguage.French:
-            return string + "French";
+            return "Réponds par un court message de type SMS, du point de vue du personnage, sans jamais inclure son nom comme \"nom : message\". Réponds exclusivement en français.";
         case PlayerLanguage.German:
-            return string + "German";
+            return "Gib eine kurze SMS-ähnliche Antwort aus der Perspektive des Charakters, ohne den Namen wie \"Name: Nachricht\" zu schreiben. Antworte ausschließlich auf Deutsch.";
         case PlayerLanguage.Italian:
-            return string + "Italian";
+            return "Rispondi con un breve messaggio in stile SMS, dal punto di vista del personaggio, senza mai scrivere il nome come \"nome: messaggio\". Rispondi esclusivamente in italiano.";
         case PlayerLanguage.Portuguese:
-            return string + "Portuguese";
+            return "Responda com uma mensagem curta no estilo SMS, na perspectiva do personagem, nunca inclua o nome como \"nome: mensagem\". Responda exclusivamente em português.";
         case PlayerLanguage.Russian:
-            return string + "Russian";
+            return "Ответь коротким сообщением в стиле СМС от лица персонажа, не указывая его имя как \"имя: сообщение\". Отвечай исключительно на русском языке.";
+        case PlayerLanguage.Ukraine:
+            return "Відповідай коротким SMS-повідомленням від імені персонажа, не вказуючи ім’я як \"ім’я: повідомлення\". Відповідай виключно українською мовою.";
+        default:
+            return "Give a short reply in the form of an SMS message, from the character’s perspective, never send your character name like \"name: msg\". Always respond exclusively in English";
     }
 }
+
 
 enum ConversationType {
     Normal = 0,
@@ -276,9 +281,9 @@ enum PlayerLanguage {
     German = 3,
     Italian = 4,
     Portuguese = 5,
-    Russian = 6
+    Russian = 6,
+    Ukraine = 7
 }
-
 public func GetTextingSystem() -> ref<GenerativeTextingSystem> {
     return GameInstance.GetScriptableServiceContainer().GetService(n"GenerativeTextingSystem") as GenerativeTextingSystem;
 }
