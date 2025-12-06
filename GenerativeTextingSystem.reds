@@ -1,5 +1,7 @@
 import Codeware.*
 import Codeware.UI.*
+import RedFileSystem.*
+import RedData.Json.*
 
 public class GenerativeTextingSystem extends ScriptableService {
     private let initialized: Bool = false;
@@ -380,6 +382,38 @@ public class GenerativeTextingSystem extends ScriptableService {
 
         this.npcSelected = value;
         if this.npcSelected {
+
+            let jsonSystem = JsonReaderSystem.GetJsonReaderSystem();
+
+            if!IsDefined(jsonSystem) {
+                FTLogError("ToggleNpcSelected: JsonReaderSystem not available.");
+            }
+
+        
+            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+            let json = file.ReadAsJson();   
+
+            let jsonContent: String = json.ToString("    "); 
+
+            let json = ParseJson(jsonContent) as JsonObject; 
+            
+            let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+            let characterObject = json.GetKey(char) as JsonObject;
+
+            let resultString1: String = characterObject.GetKeyString("vMessages");
+            let resultString2: String = characterObject.GetKeyString("npcResponses");
+
+            let resultArray1: array<String> = StrSplit(resultString1, "|");
+            let resultArray2: array<String> = StrSplit(resultString2, "|");
+
+            
+            GetHttpRequestSystem().vMessages = resultArray1;
+            GetHttpRequestSystem().npcResponses = resultArray2;
+
             // Register Keys...
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
                 .AddTarget(InputTarget.Key(EInputKey.IK_T));
@@ -738,6 +772,157 @@ public func GetUndoString() -> String {
             text = StrRight(text, StrLen(text) - 1);
         }
 
+        
+
+        if fromPlayer {
+            let jsonSystem = JsonReaderSystem.GetJsonReaderSystem();
+
+            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+            let json = file.ReadAsJson();   
+
+            let jsonContent: String = json.ToString("    "); 
+
+            let json = ParseJson(jsonContent) as JsonObject; 
+            
+            let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+            let characterObject = json.GetKey(char) as JsonObject;
+
+            let resultString: String = characterObject.GetKeyString("vMessages");
+
+            let resultArray: array<String> = StrSplit(resultString, "|");
+
+            let max_messages: Int32 = 20;
+
+            if ArraySize(resultArray) >= max_messages {
+
+                let newString: String = "";
+                let count: Int32 = 0;
+
+                for elem in resultArray {
+                    count += 1;
+                    if count == 1 {
+                    
+                    }else{
+                        newString += elem + "|";
+                    }
+                }
+
+                newString += text + "|";
+
+                characterObject.SetKeyString("vMessages", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+                
+                file.WriteJson(json); 
+                
+            }else{
+                let jsonSystem = JsonReaderSystem.GetJsonReaderSystem();
+
+                let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+                let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+                let json = file.ReadAsJson();   
+
+                let jsonContent: String = json.ToString("    "); 
+
+                let json = ParseJson(jsonContent) as JsonObject; 
+                
+                let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+                let characterObject = json.GetKey(char) as JsonObject;
+
+                let newString: String = characterObject.GetKeyString("vMessages");
+
+                newString += text + "|";
+
+                characterObject.SetKeyString("vMessages", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+
+                file.WriteJson(json);    
+            }
+
+        }else{
+
+            let jsonSystem = JsonReaderSystem.GetJsonReaderSystem();
+
+            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+            let json = file.ReadAsJson();   
+
+            let jsonContent: String = json.ToString("    "); 
+
+            let json = ParseJson(jsonContent) as JsonObject; 
+            
+            let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+            let characterObject = json.GetKey(char) as JsonObject;
+
+            let resultString: String = characterObject.GetKeyString("npcResponses");
+
+            let resultArray: array<String> = StrSplit(resultString, "|");
+
+            let max_messages: Int32 = 20;
+
+            if ArraySize(resultArray) >= max_messages {
+
+                let newString: String = "";
+                let count: Int32 = 0;
+
+                for elem in resultArray {
+                    count += 1;
+                    if count == 1 {
+                    
+                    }else{
+                        newString += elem + "|";
+                    }
+                }
+
+                newString += text;
+
+                characterObject.SetKeyString("npcResponses", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+                
+                file.WriteJson(json); 
+                
+            }else{
+                let jsonSystem = JsonReaderSystem.GetJsonReaderSystem();
+
+                let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+                let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+                let json = file.ReadAsJson();   
+
+                let jsonContent: String = json.ToString("    "); 
+
+                let json = ParseJson(jsonContent) as JsonObject; 
+                
+                let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+                let characterObject = json.GetKey(char) as JsonObject;
+
+                let newString: String = characterObject.GetKeyString("npcResponses");
+
+                newString += text + "|";
+
+                characterObject.SetKeyString("npcResponses", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+
+                file.WriteJson(json); 
+            }  
+
+        }
+
         let message = new inkFlex();
         message.SetName(n"Root");
         message.SetHAlign(inkEHorizontalAlign.Left);
@@ -868,14 +1053,13 @@ public func GetUndoString() -> String {
 
         let i = 0;
         while i < ArraySize(vMessages) {
+            
             let vMessage = vMessages[i];
             let npcResponse = npcResponses[i];
-            
-            // Does not render UI Bubble if there is no message
+
             if StrLen(vMessage) > 0 {            
                 this.BuildMessage(vMessage, true, false);
             }
-
             if StrLen(npcResponse) == 0 {
                 i += 1;
             } else if StrLen(npcResponse) > 1000 {
@@ -887,6 +1071,7 @@ public func GetUndoString() -> String {
                 this.BuildMessage(npcResponse, false, false);
             }
             i += 1;
+
         }
 
         this.UpdateInputUi();
